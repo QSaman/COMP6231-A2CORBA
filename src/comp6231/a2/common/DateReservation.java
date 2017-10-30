@@ -6,6 +6,8 @@ package comp6231.a2.common;
 import java.io.Serializable;
 import java.util.Calendar;
 
+import comp6231.a2.common.corba.data_structure.CorbaDateReservation;
+
 /**
  * @author saman
  *
@@ -30,7 +32,15 @@ public class DateReservation implements /*Comparable<DateReservation>,*/ Seriali
 		setDate(tmp[2], tmp[1], tmp[0]);
 	}
 	
+	public DateReservation(CorbaDateReservation date_reservation) {
+		setDate(date_reservation.year, date_reservation.month, date_reservation.day);		
+	}
 	
+	public CorbaDateReservation toCorba()
+	{
+		CorbaDateReservation ret = new CorbaDateReservation(year, month, day);
+		return ret;
+	}
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

@@ -5,6 +5,8 @@ package comp6231.a2.common;
 
 import java.io.Serializable;
 
+import comp6231.a2.common.corba.data_structure.CorbaTimeSlotResult;
+
 /**
  * @author saman
  *
@@ -54,6 +56,12 @@ public class TimeSlotResult implements Serializable {
 	public TimeSlotResult(String campus_name, int total_available_slots) {
 		campusName = campus_name;
 		totalAvailableSlots = total_available_slots;
+	}
+	
+	public CorbaTimeSlotResult toCorba()
+	{
+		CorbaTimeSlotResult ret = new CorbaTimeSlotResult(getCampusName(), getTotalAvailableSlots());
+		return ret;
 	}
 	
 	public String getCampusName() {

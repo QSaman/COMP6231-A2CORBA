@@ -6,6 +6,9 @@ package comp6231.a2.common;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import comp6231.a2.common.corba.data_structure.CorbaTimeSlot;
+import comp6231.a2.common.corba.users.corba_timeslot_listHelper;
+
 /**
  * @author saman
  *
@@ -23,6 +26,17 @@ public class TimeSlot implements Serializable {
 	public TimeSlot(int hour1, int minute1, int hour2, int minute2)
 	{
 		initTimeSlot(hour1, minute1, hour2, minute2);
+	}
+	
+	public TimeSlot(CorbaTimeSlot time_slot)
+	{
+		initTimeSlot(time_slot.hour1, time_slot.minute1, time_slot.hour2, time_slot.minute2);
+	}
+	
+	public CorbaTimeSlot toCorba()
+	{
+		CorbaTimeSlot ret = new CorbaTimeSlot(hour[0], minute[0], hour[1], minute[1]);
+		return ret;
 	}
 	
 	public TimeSlot(String time_slot_str)

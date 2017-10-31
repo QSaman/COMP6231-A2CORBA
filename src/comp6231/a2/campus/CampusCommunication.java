@@ -4,7 +4,7 @@ package comp6231.a2.campus;
 public abstract class CampusCommunication {
 	protected Campus campus;
 	
-	class RemoteInfo
+	public class RemoteInfo
 	{
 		public int port;
 		public String address;

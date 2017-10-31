@@ -1,5 +1,8 @@
-package comp6231.a2.campus;
+package comp6231.a2.campus.communication;
 
+import comp6231.a2.campus.CampusCommunication;
+import comp6231.a2.campus.CampusOperations;
+import comp6231.a2.campus.CampusCommunication.RemoteInfo;
 import comp6231.a2.common.DateReservation;
 import comp6231.a2.common.TimeSlot;
 import comp6231.a2.common.TimeSlotResult;

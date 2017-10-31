@@ -1,7 +1,7 @@
 /**
  * 
  */
-package comp6231.a2.campus.corba;
+package comp6231.a2.campus.communication.corba;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;

@@ -10,6 +10,7 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import comp6231.a2.campus.communication.RmiCampusCommunication;
 import comp6231.a2.common.LoggerHelper;
 
 /**

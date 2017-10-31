@@ -21,5 +21,5 @@ public abstract class CampusCommunication {
 	
 	public abstract RemoteInfo getRemoteInfo(String campus_name);
 	public abstract String[] getAllCampusNames();
-	public abstract void startServer();
+	public abstract void startServer(String[] args);
 }

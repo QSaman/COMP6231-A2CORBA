@@ -55,9 +55,9 @@ public class Campus implements Serializable {
 		inter_campus_ops.setCampus(this);
 	}
 	
-	public void starServer() throws RemoteException
+	public void starServer(String[] args) throws RemoteException
 	{
-		campus_comm.startServer();
+		campus_comm.startServer(args);
 		logger.info(LoggerHelper.format(getName() + " bound"));
 	}
 	

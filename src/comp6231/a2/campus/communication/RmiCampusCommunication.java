@@ -54,7 +54,7 @@ public class RmiCampusCommunication extends CampusCommunication implements Admin
 	}
 
 	@Override
-	public void startServer() {
+	public void startServer(String[] args) {
 		System.setProperty("java.security.policy", "file:./src/comp6231/security.policy");
 //		System.setProperty("java.rmi.server.codebase", "file:///media/NixHddData/MyStuff/Programming/Projects/Java/workspace/A1RMI/bin/");
 		if (System.getSecurityManager() == null)

@@ -46,7 +46,7 @@ public class Bootstrap {
 			int port = ports[i];
 			Logger logger = LoggerHelper.getCampusServerLogger(campus_name);
 			Campus campus = new Campus(campus_name, "127.0.0.1", port, logger, new RmiCampusCommunication(registry));
-			campus.starServer();
+			campus.starServer(null);
 			campuses.add(campus);
 		}
 		

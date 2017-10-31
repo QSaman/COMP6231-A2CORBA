@@ -8,6 +8,9 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+import org.omg.CORBA.ORB;
+
+import comp6231.a2.campus.Campus;
 import comp6231.a2.common.DateReservation;
 import comp6231.a2.common.TimeSlot;
 import comp6231.a2.common.corba.data_structure.CorbaDateReservation;
@@ -21,11 +24,17 @@ import comp6231.a2.common.users.AdminOperations;
  */
 public class AdminCampusServant extends AdminOperationsPOA {
 	
-	AdminOperations admin_operations;
+	Campus campus;
 	
-	public AdminCampusServant(AdminOperations admin_operations)
+	public AdminCampusServant(Campus campus)
 	{
-		this.admin_operations = admin_operations;
+		this.campus = campus;
+	}
+	
+	public void startServer(String[] args)
+	{
+        // create and initialize the ORB
+        ORB orb = ORB.init(args, null);
 	}
 
 	/* (non-Javadoc)
@@ -36,13 +45,7 @@ public class AdminCampusServant extends AdminOperationsPOA {
 		ArrayList<TimeSlot> ts = new ArrayList<TimeSlot>();
 		for (CorbaTimeSlot cts : time_slots)
 			ts.add(new TimeSlot(cts));
-		try {
-			return admin_operations.createRoom(user_id, room_number, new DateReservation(date), ts);
-		} catch (RemoteException e) {
-			// Since it's local, this exception never happens
-			e.printStackTrace();
-		}
-		return false;
+		return campus.createRoom(user_id, room_number, new DateReservation(date), ts);
 	}
 
 	/* (non-Javadoc)
@@ -53,13 +56,7 @@ public class AdminCampusServant extends AdminOperationsPOA {
 		ArrayList<TimeSlot> ts = new ArrayList<TimeSlot>();
 		for (CorbaTimeSlot cts : time_slots)
 			ts.add(new TimeSlot(cts));
-		try {
-			admin_operations.deleteRoom(user_id, room_number, new DateReservation(date), ts);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
+		return campus.deleteRoom(user_id, room_number, new DateReservation(date), ts);
 	}
 
 	/* (non-Javadoc)
@@ -68,12 +65,12 @@ public class AdminCampusServant extends AdminOperationsPOA {
 	@Override
 	public boolean startWeek(String user_id) {
 		try {
-			return admin_operations.startWeek(user_id);
-		} catch (NotBoundException | IOException | InterruptedException e) {
+			return campus.startWeek(user_id);
+		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
-		return false;
 	}
 
 	/**

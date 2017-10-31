@@ -1,6 +1,12 @@
 package comp6231.a2.campus;
 
-import java.rmi.AccessException;
+import comp6231.a2.common.DateReservation;
+import comp6231.a2.common.TimeSlot;
+import comp6231.a2.common.TimeSlotResult;
+import comp6231.a2.common.users.AdminOperations;
+import comp6231.a2.common.users.StudentOperations;
+
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -8,13 +14,12 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
-public class RmiCampusCommunication extends CampusCommunication {
+public class RmiCampusCommunication extends CampusCommunication implements AdminOperations, StudentOperations, CampusOperations {
 	
 	private Registry registry;
 	CampusOperations campus_operations;
 	
-	public RmiCampusCommunication(String campus_name, Registry registry) {
-		super(campus_name);
+	public RmiCampusCommunication(Registry registry) {
 		this.registry = registry;		
 	}
 
@@ -46,7 +51,7 @@ public class RmiCampusCommunication extends CampusCommunication {
 	}
 
 	@Override
-	public void startServer(Campus campus) {
+	public void startServer() {
 		System.setProperty("java.security.policy", "file:./src/comp6231/security.policy");
 //		System.setProperty("java.rmi.server.codebase", "file:///media/NixHddData/MyStuff/Programming/Projects/Java/workspace/A1RMI/bin/");
 		if (System.getSecurityManager() == null)
@@ -54,13 +59,70 @@ public class RmiCampusCommunication extends CampusCommunication {
 		
 		Remote stub = null;
 		try {
-			stub = UnicastRemoteObject.exportObject(campus, 0);
-			registry.rebind(campus_name, stub);			
+			stub = UnicastRemoteObject.exportObject(this, 0);
+			registry.rebind(campus.getName(), stub);			
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+
+	@Override
+	public boolean createRoom(String user_id, int room_number, DateReservation date, ArrayList<TimeSlot> time_slots)
+			throws RemoteException {
+		return campus.createRoom(user_id, room_number, date, time_slots);
+	}
+
+	@Override
+	public boolean deleteRoom(String user_id, int room_number, DateReservation date, ArrayList<TimeSlot> time_slots)
+			throws RemoteException {
+		return campus.deleteRoom(user_id, room_number, date, time_slots);
+	}
+
+	@Override
+	public boolean startWeek(String user_id)
+			throws RemoteException, NotBoundException, IOException, InterruptedException {
+		return campus.startWeek(user_id);
+	}
+
+	@Override
+	public void testMethod() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String bookRoom(String user_id, String campus_name, int room_number, DateReservation date,
+			TimeSlot time_slot) throws RemoteException, NotBoundException, IOException, InterruptedException {
+		return campus.bookRoom(user_id, campus_name, room_number, date, time_slot);
+	}
+
+	@Override
+	public ArrayList<TimeSlotResult> getAvailableTimeSlot(DateReservation date)
+			throws RemoteException, NotBoundException, IOException, InterruptedException {
+		return campus.getAvailableTimeSlot(date);
+	}
+
+	@Override
+	public boolean cancelBooking(String user_id, String bookingID)
+			throws RemoteException, NotBoundException, IOException, InterruptedException {
+		return campus.cancelBooking(user_id, bookingID);
+	}
+
+	@Override
+	public int getPort() throws RemoteException {
+		return campus.getPort();
+	}
+
+	@Override
+	public String getAddress() throws RemoteException {
+		return campus.getAddress();
+	}
+
+	@Override
+	public String getCampusName() throws RemoteException {
+		return campus.getName();
 	}
 
 }

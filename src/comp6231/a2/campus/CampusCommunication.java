@@ -1,9 +1,8 @@
 package comp6231.a2.campus;
 
-import java.util.ArrayList;
 
 public abstract class CampusCommunication {
-	protected String campus_name;
+	protected Campus campus;
 	
 	class RemoteInfo
 	{
@@ -11,12 +10,16 @@ public abstract class CampusCommunication {
 		public String address;
 	}
 	
-	public CampusCommunication(String campus_name)
+	public CampusCommunication()
 	{
-		this.campus_name = campus_name;
+	}
+	
+	public void setCampus(Campus campus)
+	{
+		this.campus = campus;
 	}
 	
 	public abstract RemoteInfo getRemoteInfo(String campus_name);
 	public abstract String[] getAllCampusNames();
-	public abstract void startServer(Campus campus);
+	public abstract void startServer();
 }

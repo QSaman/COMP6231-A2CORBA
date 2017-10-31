@@ -18,15 +18,13 @@ import comp6231.a2.common.DateReservation;
 import comp6231.a2.common.LoggerHelper;
 import comp6231.a2.common.TimeSlot;
 import comp6231.a2.common.TimeSlotResult;
-import comp6231.a2.common.users.AdminOperations;
 import comp6231.a2.common.users.CampusUser;
-import comp6231.a2.common.users.StudentOperations;
 
 /**
  * @author saman
  *
  */
-public class Campus implements AdminOperations, StudentOperations, CampusOperations, Serializable {
+public class Campus implements Serializable {
 	/**
 	 * 
 	 */
@@ -41,7 +39,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 	private int port;	//The UDP listening port of this server	
 	private UdpServer udp_server;
 	private Logger logger;
-	private CampusCommunication inter_campus_ops;
+	private CampusCommunication campus_comm;
 		
 	public Campus(String name, String address, int port, Logger logger, CampusCommunication inter_campus_ops) throws SocketException, RemoteException
 	{
@@ -52,18 +50,18 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 		this.port = port;
 		this.logger = logger;
 		udp_server = new UdpServer(this);
-		this.inter_campus_ops = inter_campus_ops;
+		this.campus_comm = inter_campus_ops;
 		udp_server.start();
+		inter_campus_ops.setCampus(this);
 	}
 	
 	public void starServer() throws RemoteException
 	{
-		inter_campus_ops.startServer(this);
+		campus_comm.startServer();
 		logger.info(LoggerHelper.format(getName() + " bound"));
 	}
 	
-	@Override
-	public String getCampusName() throws RemoteException {
+	public String getCampusName() {
 		return getName();
 	}
 
@@ -137,8 +135,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 		}				
 	}
 
-	@Override
-	public boolean createRoom(String user_id, int room_number, DateReservation date, ArrayList<TimeSlot> time_slots) throws RemoteException {
+	public boolean createRoom(String user_id, int room_number, DateReservation date, ArrayList<TimeSlot> time_slots) {
 		CampusUser user = new CampusUser(user_id);
 		String log_msg = String.format("received createRoom(user_id: %s, room_number: %d, date: %s, time slots: %s",
 				user_id, room_number, date, time_slots);
@@ -183,8 +180,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 	}
 
 	//TODO reduce student count if the reservation is deleted
-	@Override
-	public boolean deleteRoom(String user_id, int room_number, DateReservation date, ArrayList<TimeSlot> time_slots) throws RemoteException {
+	public boolean deleteRoom(String user_id, int room_number, DateReservation date, ArrayList<TimeSlot> time_slots) {
 		String log_msg = String.format("received deleteRoom(user id: %s, room number: %d, date: %s, time slots: %s", 
 				user_id, room_number, date, time_slots);
 		logger.info(LoggerHelper.format(log_msg));
@@ -262,7 +258,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 									thread.start();
 									sendMessage(send_msg, user.getCampus());									
 									threads.add(thread);
-								} catch (NotBoundException | IOException e) {
+								} catch (IOException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
@@ -339,8 +335,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 			}
 		}
 	}
-	@Override
-	public boolean startWeek(String user_id) throws RemoteException, NotBoundException, IOException, InterruptedException {
+	public boolean startWeek(String user_id) throws IOException, InterruptedException {
 		logger.info(LoggerHelper.format(String.format("recieved a request for starting a new week from user %s", user_id)));
 		CampusUser user = new CampusUser(user_id);
 		if (!user.isAdmin() && !user.getCampus().equals(getName()))
@@ -353,7 +348,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 			synchronized (write_student_db_lock) {
 				clearAllDatabases();
 				ArrayList<Thread> threads = new ArrayList<Thread>();
-				String[] campus_names = inter_campus_ops.getAllCampusNames();
+				String[] campus_names = campus_comm.getAllCampusNames();
 				for (String campus_str : campus_names)
 				{
 					if (campus_str.equals(getName()))
@@ -435,9 +430,9 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 		return ops._time_slots;
 	}
 	
-	private void sendMessage(byte[] message, String campus_name) throws NotBoundException, IOException
+	private void sendMessage(byte[] message, String campus_name) throws IOException
 	{
-		CampusCommunication.RemoteInfo remote_info = inter_campus_ops.getRemoteInfo(campus_name);
+		CampusCommunication.RemoteInfo remote_info = campus_comm.getRemoteInfo(campus_name);
 		InetAddress address = InetAddress.getByName(remote_info.address);
 		int port = remote_info.port;
 		udp_server.sendDatagram(message, address, port);
@@ -527,9 +522,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 			throw new IllegalArgumentException("The sender campus send the message to the wrong campus: (" + campus_name + ", " + getName() + ")");
 	}
 	
-	@Override
-	public String bookRoom(String user_id, String campus_name, int room_number, DateReservation date, TimeSlot time_slot)
-			throws RemoteException, NotBoundException, IOException, InterruptedException {
+	public String bookRoom(String user_id, String campus_name, int room_number, DateReservation date, TimeSlot time_slot) throws NotBoundException, IOException, InterruptedException {
 		
 		CampusUser user = new CampusUser(user_id);
 		String log_msg = String.format("received bookRoom(user id: %s, campus name: %s, " + 
@@ -631,8 +624,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 		return ret;
 	}	
 
-	@Override
-	public ArrayList<TimeSlotResult> getAvailableTimeSlot(DateReservation date) throws RemoteException, NotBoundException, IOException, InterruptedException {
+	public ArrayList<TimeSlotResult> getAvailableTimeSlot(DateReservation date) throws IOException, InterruptedException {
 		String log_msg = String.format("received getAvailableTimeSlot(date: %s)", date);
 		logger.info(LoggerHelper.format(log_msg));
 		
@@ -641,7 +633,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 		HashMap<Integer, String> hm = new HashMap<>();	//(message_id, campus_name)
 		HashMap<Integer, UdpServer.WaitObject> hm_wo = new HashMap<>();	//(message_id, WaitObject)
 		ArrayList<Thread> threads = new ArrayList<Thread>();
-		String[] campus_names = inter_campus_ops.getAllCampusNames();
+		String[] campus_names = campus_comm.getAllCampusNames();
 		for (String campus_str : campus_names)
 		{
 			if (campus_str.equals(getName()))
@@ -690,8 +682,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 		}
 	}
 
-	@Override
-	public boolean cancelBooking(String user_id, String bookingID) throws RemoteException, NotBoundException, IOException, InterruptedException {
+	public boolean cancelBooking(String user_id, String bookingID) throws NotBoundException, IOException, InterruptedException {
 		CampusUser user = new CampusUser(user_id);
 		String log_msg = String.format("received cancelBooking(user id: %s, booking id: %s)", user_id, bookingID);
 		logger.info(LoggerHelper.format(log_msg));
@@ -755,19 +746,16 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 		return ops._status;		
 	}
 
-	@Override
-	public void testMethod() throws RemoteException {
+	public void testMethod() {
 		System.out.println("I am test!");
 		
 	}
 
-	@Override
-	public int getPort() throws RemoteException {
+	public int getPort() {
 		return port;
 	}
 
-	@Override
-	public String getAddress() throws RemoteException {
+	public String getAddress() {
 		return address;
 	}
 }

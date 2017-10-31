@@ -8,10 +8,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.rmi.NotBoundException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -34,8 +31,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String name;
-	private Registry registry;
+	private String name;	
 	private HashMap<DateReservation, HashMap<Integer, ArrayList<TimeSlot>>> db;
 	private final Object date_db_lock = new Object();
 	private final Object room_db_lock = new Object();
@@ -45,30 +41,24 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 	private int port;	//The UDP listening port of this server	
 	private UdpServer udp_server;
 	private Logger logger;
+	private CampusCommunication inter_campus_ops;
 		
-	public Campus(String name, Registry registry, String address, int port, Logger logger) throws SocketException, RemoteException
+	public Campus(String name, String address, int port, Logger logger, CampusCommunication inter_campus_ops) throws SocketException, RemoteException
 	{
 		this.name = name;
-		this.registry = registry;
 		db = new HashMap<DateReservation, HashMap<Integer, ArrayList<TimeSlot>>>();
 		student_db = new HashMap<String, StudentRecord>();
 		this.address = address;
 		this.port = port;
 		this.logger = logger;
-		udp_server = new UdpServer(this); 
+		udp_server = new UdpServer(this);
+		this.inter_campus_ops = inter_campus_ops;
 		udp_server.start();
 	}
 	
-	public void startRmiServer() throws RemoteException
+	public void starServer() throws RemoteException
 	{
-		System.setProperty("java.security.policy", "file:./src/comp6231/security.policy");
-//		System.setProperty("java.rmi.server.codebase", "file:///media/NixHddData/MyStuff/Programming/Projects/Java/workspace/A1RMI/bin/");
-		if (System.getSecurityManager() == null)
-			System.setSecurityManager(new SecurityManager());
-		
-		Remote stub = UnicastRemoteObject.exportObject(this, 0);
-	
-		registry.rebind(getName(), stub);
+		inter_campus_ops.startServer(this);
 		logger.info(LoggerHelper.format(getName() + " bound"));
 	}
 	
@@ -362,12 +352,11 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 		synchronized (date_db_lock) {			
 			synchronized (write_student_db_lock) {
 				clearAllDatabases();
-				ArrayList<Thread> threads = new ArrayList<Thread>();				
-				for (String campus_str : registry.list())
+				ArrayList<Thread> threads = new ArrayList<Thread>();
+				String[] campus_names = inter_campus_ops.getAllCampusNames();
+				for (String campus_str : campus_names)
 				{
-					CampusOperations ops = (CampusOperations)registry.lookup(campus_str);
-					String campus_name = ops.getCampusName();
-					if (campus_name.equals(getName()))
+					if (campus_str.equals(getName()))
 						continue;
 					int message_id = MessageProtocol.generateMessageId();
 					byte[] send_msg = MessageProtocol.encodeStartWeekMessage(message_id);
@@ -387,7 +376,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 						}
 					});
 					thread.start();
-					sendMessage(send_msg, campus_name);
+					sendMessage(send_msg, campus_str);
 					threads.add(thread);
 				}
 				for (Thread thread : threads)
@@ -448,9 +437,9 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 	
 	private void sendMessage(byte[] message, String campus_name) throws NotBoundException, IOException
 	{
-		CampusOperations ops = (CampusOperations)registry.lookup(campus_name);
-		InetAddress address = InetAddress.getByName(ops.getAddress());
-		int port = ops.getPort();
+		CampusCommunication.RemoteInfo remote_info = inter_campus_ops.getRemoteInfo(campus_name);
+		InetAddress address = InetAddress.getByName(remote_info.address);
+		int port = remote_info.port;
 		udp_server.sendDatagram(message, address, port);
 	}
 	
@@ -652,16 +641,14 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 		HashMap<Integer, String> hm = new HashMap<>();	//(message_id, campus_name)
 		HashMap<Integer, UdpServer.WaitObject> hm_wo = new HashMap<>();	//(message_id, WaitObject)
 		ArrayList<Thread> threads = new ArrayList<Thread>();
-		
-		for (String campus_str : registry.list())
+		String[] campus_names = inter_campus_ops.getAllCampusNames();
+		for (String campus_str : campus_names)
 		{
-			CampusOperations ops = (CampusOperations)registry.lookup(campus_str);
-			String campus_name = ops.getCampusName();
-			if (campus_name.equals(getName()))
+			if (campus_str.equals(getName()))
 				continue;
 			int message_id = MessageProtocol.generateMessageId();
 			byte[] send_msg = MessageProtocol.encodeGetAvailableTimeSlotsMessage(message_id, date);
-			hm.put(message_id, campus_name);			
+			hm.put(message_id, campus_str);			
 			UdpServer.WaitObject wait_object = udp_server.new WaitObject();
 			udp_server.addToWaitList(message_id, wait_object);			
 			hm_wo.put(message_id, wait_object);
@@ -679,7 +666,7 @@ public class Campus implements AdminOperations, StudentOperations, CampusOperati
 				}
 			});
 			thread.start();
-			sendMessage(send_msg, campus_name);
+			sendMessage(send_msg, campus_str);
 			threads.add(thread);
 		}
 		System.out.println("threads.length(): " + threads.size()); 

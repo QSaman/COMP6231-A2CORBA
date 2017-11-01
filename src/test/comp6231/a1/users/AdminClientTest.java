@@ -39,7 +39,7 @@ public class AdminClientTest {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Bootstrap.initServers();
+		Bootstrap.initRmiServers();
 	}
 
 	/**
@@ -159,13 +159,8 @@ public class AdminClientTest {
 			}
 			for (ThreadParameters para : thread_paras)
 			{
-				try {
-					boolean status = client.createRoom(para.room_number, para.date, para.time_slots);
-					assertTrue(status);
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				boolean status = client.createRoom(para.room_number, para.date, para.time_slots);
+				assertTrue(status);
 			}
 		}
 		
@@ -254,7 +249,6 @@ public class AdminClientTest {
 			}
 			assertTrue(found);
 		}
-		String bi = client.bookRoom("DVL", 777, date, new TimeSlot("0:0 - 0:21"));
 	}
 
 	/**

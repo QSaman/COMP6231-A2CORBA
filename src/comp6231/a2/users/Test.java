@@ -13,7 +13,7 @@ import comp6231.a2.common.users.CampusUser;
 public class Test {
 
 	public static void main(String[] args) throws SecurityException, IOException, NotBoundException, InterruptedException {
-		Bootstrap.initServers();
+		Bootstrap.initRmiServers();
 		AdminClient admin1 = ClientUserFactory.createAdminClient(new CampusUser("DVLA1111"));
 		DateReservation date = new DateReservation("17-09-2017");
 		ArrayList<TimeSlot> time_slots = new ArrayList<>();

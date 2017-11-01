@@ -11,6 +11,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import comp6231.a2.campus.UdpServer.WaitObject;
@@ -41,7 +42,7 @@ public class Campus implements Serializable {
 	private Logger logger;
 	private CampusCommunication campus_comm;
 		
-	public Campus(String name, String address, int port, Logger logger, CampusCommunication inter_campus_ops) throws SocketException, RemoteException
+	public Campus(String name, String address, int port, Logger logger, CampusCommunication campus_comm) throws SocketException, RemoteException
 	{
 		this.name = name;
 		db = new HashMap<DateReservation, HashMap<Integer, ArrayList<TimeSlot>>>();
@@ -50,14 +51,14 @@ public class Campus implements Serializable {
 		this.port = port;
 		this.logger = logger;
 		udp_server = new UdpServer(this);
-		this.campus_comm = inter_campus_ops;
+		this.campus_comm = campus_comm;
 		udp_server.start();
-		inter_campus_ops.setCampus(this);
+		this.campus_comm.setCampus(this);
 	}
 	
-	public void starServer(String[] args) throws RemoteException
+	public void starServer() throws RemoteException
 	{
-		campus_comm.startServer(args);
+		campus_comm.startServer();
 		logger.info(LoggerHelper.format(getName() + " bound"));
 	}
 	

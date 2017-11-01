@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Properties;
 
 public class RmiCampusCommunication extends CampusCommunication implements AdminOperations, StudentOperations, CampusOperations {
 	
@@ -54,7 +55,7 @@ public class RmiCampusCommunication extends CampusCommunication implements Admin
 	}
 
 	@Override
-	public void startServer(String[] args) {
+	public void startServer() {
 		System.setProperty("java.security.policy", "file:./src/comp6231/security.policy");
 //		System.setProperty("java.rmi.server.codebase", "file:///media/NixHddData/MyStuff/Programming/Projects/Java/workspace/A1RMI/bin/");
 		if (System.getSecurityManager() == null)
@@ -91,8 +92,7 @@ public class RmiCampusCommunication extends CampusCommunication implements Admin
 
 	@Override
 	public void testMethod() throws RemoteException {
-		// TODO Auto-generated method stub
-		
+		campus.testMethod();		
 	}
 
 	@Override
@@ -127,5 +127,4 @@ public class RmiCampusCommunication extends CampusCommunication implements Admin
 	public String getCampusName() throws RemoteException {
 		return campus.getName();
 	}
-
 }

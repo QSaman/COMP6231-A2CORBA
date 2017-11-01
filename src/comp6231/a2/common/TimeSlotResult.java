@@ -4,7 +4,9 @@
 package comp6231.a2.common;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
+import comp6231.a2.common.corba.data_structure.CorbaTimeSlot;
 import comp6231.a2.common.corba.data_structure.CorbaTimeSlotResult;
 
 /**
@@ -52,6 +54,12 @@ public class TimeSlotResult implements Serializable {
 			return false;
 		return true;
 	}
+	
+	public TimeSlotResult(CorbaTimeSlotResult time_slot_result)
+	{
+		campusName = time_slot_result.campus_name;
+		totalAvailableSlots = time_slot_result.total_available_slots;
+	}
 
 	public TimeSlotResult(String campus_name, int total_available_slots) {
 		campusName = campus_name;
@@ -61,6 +69,14 @@ public class TimeSlotResult implements Serializable {
 	public CorbaTimeSlotResult toCorba()
 	{
 		CorbaTimeSlotResult ret = new CorbaTimeSlotResult(getCampusName(), getTotalAvailableSlots());
+		return ret;
+	}
+	
+	public static ArrayList<TimeSlotResult> toArrayList(CorbaTimeSlotResult[] time_slots)
+	{
+		ArrayList<TimeSlotResult> ret = new ArrayList<>();
+		for (CorbaTimeSlotResult val : time_slots)
+			ret.add(new TimeSlotResult(val));
 		return ret;
 	}
 	

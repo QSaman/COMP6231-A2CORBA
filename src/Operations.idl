@@ -20,13 +20,14 @@ module comp6231 { module a2 { module common { module corba { module users {
     typedef comp6231::a2::common::corba::data_structure::CorbaDateReservation CorbaDateReservation;
     typedef comp6231::a2::common::corba::data_structure::CorbaTimeSlot CorbaTimeSlot;
     typedef comp6231::a2::common::corba::data_structure::CorbaTimeSlotResult CorbaTimeSlotResult;
+    valuetype nullable_string string;
     
     typedef sequence<CorbaTimeSlotResult> corba_timeslot_result_list;
     typedef sequence<CorbaTimeSlot> corba_timeslot_list;
     
     interface StudentOperations
     {
-	string bookRoom(in string user_id, in string campus_name, in long room_number, in CorbaDateReservation date, in CorbaTimeSlot time_slot);
+	nullable_string bookRoom(in string user_id, in string campus_name, in long room_number, in CorbaDateReservation date, in CorbaTimeSlot time_slot);
 	corba_timeslot_result_list getAvailableTimeSlot(in CorbaDateReservation date);
 	boolean cancelBooking(in string user_id, in string bookingID);
     };

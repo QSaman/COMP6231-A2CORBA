@@ -25,7 +25,14 @@
 
 \section{Adopting to New Requirements}
 I decided to separate business logic from communication technology. In other words, My $Campus$ class which is responsible to implement campus servers functionality contain only business logic of the servers. Both RMI and CORBA use this class for handling user requests. Due to checked exceptions in Java, It wasn't feasible to write one interface for both of them. Because they have different classes for exception handling.
-\par Because of this separation I can run both RMI and CORBA with the same functionality. I defined a variable to determine communication technology. At the moment I only support RMI and CORBA and hopefully with a little changes I can support web services also.
+\par Because of this separation I can run both RMI and CORBA with the same functionality. I defined a variable to determine communication technology. At the moment I only support RMI and CORBA and hopefully with a little changes I can support web services also. You can see a rough class diagram in figure \ref{fig:class_diagram}.
+
+\begin{figure}
+\caption{Rough class diagram}
+\centering
+\label{fig:class_diagram}
+\includegraphics[width=\linewidth]{img/class_diagram.png}
+\end{figure}
 
 \section{Implementing the New Functionality}
 

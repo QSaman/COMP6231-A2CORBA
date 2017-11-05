@@ -144,6 +144,8 @@ public class StudentClientTest {
 		booking_id = client.changeReservation(booking_list_dvl.get(1).booking_id, "WST", 779, new DateReservation("19-09-2017"), new TimeSlot(14, 0, 15, 0));
 		assertNotNull(booking_id);
 		booking_list_dvl.set(1, new Student("DVLS1111", booking_id));
+		boolean status = client.cancelBooking(booking_list_dvl.get(0).booking_id);
+		assertTrue(status);
 		booking_id = client.bookRoom("KKL", 778, new DateReservation("18-09-2017"), new TimeSlot(8, 0, 10, 0));
 		assertNotNull(booking_id);
 		booking_list_dvl.add(new Student("DVLS1111", booking_id));

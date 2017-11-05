@@ -69,4 +69,16 @@ public class StudentRmi implements StudentInterface {
 		}
 	}
 
+	@Override
+	public String changeReservation(String user_id, String booking_id, String new_campus_name, int new_room_number,
+			DateReservation new_date, TimeSlot new_time_slot) {
+		try {
+			return remote_stub.changeReservation(user_id, booking_id, new_campus_name, new_room_number, new_date, new_time_slot);
+		} catch (NotBoundException | IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 }

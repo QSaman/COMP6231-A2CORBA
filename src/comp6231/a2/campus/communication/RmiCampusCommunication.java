@@ -127,4 +127,11 @@ public class RmiCampusCommunication extends CampusCommunication implements Admin
 	public String getCampusName() throws RemoteException {
 		return campus.getName();
 	}
+
+	@Override
+	public String changeReservation(String user_id, String booking_id, String new_campus_name, int new_room_number,
+			DateReservation new_date, TimeSlot new_time_slot)
+			throws NotBoundException, IOException, InterruptedException {
+		return campus.changeReservation(user_id, booking_id, new_campus_name, new_room_number, new_date, new_time_slot);
+	}
 }

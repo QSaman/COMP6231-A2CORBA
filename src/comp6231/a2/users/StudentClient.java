@@ -71,5 +71,17 @@ public class StudentClient {
 		logger.info(LoggerHelper.format(log_msg));
 		return status;
 	}
+	
+	public String changeReservation(String booking_id, String new_campus_name, int new_room_number, DateReservation new_date, TimeSlot new_time_slot)
+	{
+		String log_msg = String.format("%s is sending changeReservation(booking id: %s, new_campus_name: %s, new_room_numer: %d, new_date: %s, new_time_slot: %s)",
+				user.getUserId(), booking_id, new_campus_name, new_room_number, new_date, new_time_slot);
+		logger.info(LoggerHelper.format(log_msg));
+		String res = student_interface.changeReservation(user.getUserId(), booking_id, new_campus_name, new_room_number, new_date, new_time_slot);
+		log_msg = String.format("%s is sending changeReservation(booking id: %s, new_campus_name: %s, new_room_numer: %d, new_date: %s, new_time_slot: %s): %s",
+				user.getUserId(), booking_id, new_campus_name, new_room_number, new_date, new_time_slot, res == null ? "null": res);
+		logger.info(LoggerHelper.format(log_msg));
+		return res;
+	}
 
 }

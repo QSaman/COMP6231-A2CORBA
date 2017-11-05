@@ -78,4 +78,16 @@ public class StudentCampusServant extends StudentOperationsPOA {
 		}
 	}
 
+	@Override
+	public String changeReservation(String user_id, String booking_id, String new_campus_name, int new_room_number,
+			CorbaDateReservation new_date, CorbaTimeSlot new_time_slot) {
+		try {
+			return campus.changeReservation(user_id, booking_id, new_campus_name, new_room_number, new DateReservation(new_date), new TimeSlot(new_time_slot));
+		} catch (NotBoundException | IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 }

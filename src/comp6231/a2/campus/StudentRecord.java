@@ -90,7 +90,7 @@ public class StudentRecord {
 	@Override
 	public String toString()
 	{
-		return user.getUserId() + ", canBook?" + canBook();
+		return user.getUserId() + ", canBook?" + canBook(3);
 	}
 
 	public StudentRecord(CampusUser user)
@@ -118,9 +118,9 @@ public class StudentRecord {
 		return false;
 	}
 	
-	public synchronized boolean canBook()
+	public synchronized boolean canBook(int max_booking_num)
 	{
-			return records.size() < 3;
+			return records.size() < max_booking_num;
 	}
 	
 	public synchronized TimeSlot findTimeSlot(String booking_id)

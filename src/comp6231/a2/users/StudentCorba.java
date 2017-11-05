@@ -49,4 +49,10 @@ public class StudentCorba implements StudentInterface {
 		return remote_stub.cancelBooking(user_id, bookingID);
 	}
 
+	@Override
+	public String changeReservation(String user_id, String booking_id, String new_campus_name, int new_room_number,
+			DateReservation new_date, TimeSlot new_time_slot) {
+		return remote_stub.changeReservation(user_id, booking_id, new_campus_name, new_room_number, new_date.toCorba(), new_time_slot.toCorba());
+	}
+
 }

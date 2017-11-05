@@ -30,6 +30,7 @@ module comp6231 { module a2 { module common { module corba { module users {
 	nullable_string bookRoom(in string user_id, in string campus_name, in long room_number, in CorbaDateReservation date, in CorbaTimeSlot time_slot);
 	corba_timeslot_result_list getAvailableTimeSlot(in CorbaDateReservation date);
 	boolean cancelBooking(in string user_id, in string bookingID);
+	nullable_string changeReservation(in string user_id, in string booking_id, in string new_campus_name, in long new_room_number, in CorbaDateReservation new_date, in CorbaTimeSlot new_time_slot);
     };
     
     interface AdminOperations

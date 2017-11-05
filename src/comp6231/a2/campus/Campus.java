@@ -523,7 +523,35 @@ public class Campus implements Serializable {
 			throw new IllegalArgumentException("The sender campus send the message to the wrong campus: (" + campus_name + ", " + getName() + ")");
 	}
 	
+	public String changeReservation(String user_id, String booking_id, String new_campus_name, int new_room_number, DateReservation new_date, TimeSlot new_time_slot) throws NotBoundException, IOException, InterruptedException
+	{
+		CampusUser user = new CampusUser(user_id);
+		String log_msg = String.format("received changeReservation(user id: %s, booking_id: %s, new_campus name: %s, " + 
+		"new_room number: %d, new_date: %s, new_time slot: %s)", user_id, booking_id, new_campus_name, new_room_number, 
+		new_date, new_time_slot);
+		logger.info(LoggerHelper.format(log_msg));
+		if (!user.isStudent())
+		{
+			logger.warning(String.format("user %s is not allowed to changeReservation in %s campus", user_id, getName()));
+			return null;
+		}
+		String new_booking_id = bookRoom(user_id, new_campus_name, new_room_number, new_date, new_time_slot, 4);
+		if (new_booking_id != null)
+		{
+			boolean status = cancelBooking(user_id, booking_id);
+			if (!status)
+			{
+				cancelBooking(user_id, new_booking_id);
+				return null;
+			}
+		}
+		return new_booking_id;
+	}
+	
 	public String bookRoom(String user_id, String campus_name, int room_number, DateReservation date, TimeSlot time_slot) throws NotBoundException, IOException, InterruptedException {
+		return bookRoom(user_id, campus_name, room_number, date, time_slot, 3);
+	}
+	public String bookRoom(String user_id, String campus_name, int room_number, DateReservation date, TimeSlot time_slot, int max_booking_num) throws NotBoundException, IOException, InterruptedException {
 		
 		CampusUser user = new CampusUser(user_id);
 		String log_msg = String.format("received bookRoom(user id: %s, campus name: %s, " + 
@@ -539,7 +567,7 @@ public class Campus implements Serializable {
 			
 			@Override
 			public boolean onUserBelongHere(StudentRecord record) {
-				if (!record.canBook())
+				if (!record.canBook(max_booking_num))
 					return false;
 				return true;
 			}
